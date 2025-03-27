@@ -4,22 +4,23 @@ import cv2
 from PIL import Image
 import io
 import base64
+import os
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBRegressor
-import os
 
 app = Flask(__name__)
 
 # Get the absolute path to the model file
-model_path = os.path.join(os.path.dirname(__file__), 'model.json')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, 'model.json')
 
 # Load your trained model
 model = XGBRegressor()
 try:
     model.load_model(model_path)
-    print("Model loaded successfully")
+    print("Model loaded successfully from:", model_path)
 except Exception as e:
-    print(f"Error loading model: {e}")
+    print(f"Error loading model from {model_path}: {e}")
 
 def extract_features(image):
     try:
@@ -114,4 +115,5 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port) 
